@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sl.dao.QuanXianMapper">
+
+	<!-- 根据roleId和functionId获取权限列表 -->
+	<select id="getQuanXianCount" resultType="int" parameterType="QuanXian">
+		select count(1) from au_authority where roleId = #{roleId} and functionId = #{functionId}
+	</select>
+
+	<!-- 添加权限 -->
+	<insert id="addQuanXian" parameterType="QuanXian">
+		insert into au_authority (roleId,functionId,userTypeId,creationTime,createdBy)
+		values (#{roleId},#{functionId},#{userTypeId},#{creationTime},#{createdBy})
+	</insert>
+
+	<!-- 修改权限 -->
+	<update id="updateQuanXian" parameterType="QuanXian">
+		update au_authority
+		 <set>
+		 	<if test="roleId != null">roleId = #{roleId}, </if>
+		 	<if test="functionId != null">functionId = #{functionId}, </if>
+		 	<if test="userTypeId != null">userTypeId = #{userTypeId}, </if>
+		 	<if test="creationTime != null">creationTime = #{creationTime}, </if>
+		 	<if test="createdBy != null">createdBy = #{createdBy} </if>
+		 </set>
+		 where id = #{id}
+	</update>
+
+	<!-- 删除权限 -->
+	<delete id="deleteQuanXian" parameterType="QuanXian">
+		delete from au_authority
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test=" id != null">
+				and id = #{id}
+			</if>
+			<if test = "roleId != null ">
+				and roleId = #{roleId}
+			</if>
+		</trim>
+	</delete>
+
+</mapper>

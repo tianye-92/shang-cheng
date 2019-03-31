@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sl.dao.GoodsPackMapper">
+
+	<resultMap type="GoodsPack" id="GoodsPackBaseMap">
+		<id property="id" column="id"/>
+		<result property="goodsPackCode" column="goodsPackCode"/>
+		<result property="goodsPackName" column="goodsPackName"/>
+		<result property="typeId" column="typeId"/>
+		<result property="typeName" column="typeName"/>
+		<result property="totalPrice" column="totalPrice"/>
+		<result property="state" column="state"/>
+		<result property="note" column="note"/>
+		<result property="num" column="num"/>
+		<result property="createTime" column="createTime"/>
+		<result property="lastUpdateTime" column="lastUpdateTime"/>
+		<result property="createdBy" column="createdBy"/>
+	</resultMap>
+
+	<!-- 对象关联 -->
+	<resultMap type="GoodsPack" id="GoodsPackMap" extends="GoodsPackBaseMap">
+		<collection property="listGoods" ofType="Goods" resultMap="org.sl.dao.goods.GoodsMapper.GoodsBaseMap"></collection>
+	</resultMap>
+
+	<!-- 获取商品套餐集合，根据最后更新时间降序分页显示 -->
+	<select id="getGoodsPackList" resultType="GoodsPack" parameterType="GoodsPack">
+		SELECT * FROM goods_pack
+			<where>
+				<if test="goodsPackName != null">and goodsPackName like CONCAT('%',#{goodsPackName},'%')</if>
+				<if test="typeId != null">and typeId like CONCAT('%',#{typeId},'%')</if>
+				<if test="state != null">and state like CONCAT('%',#{state},'%')</if>
+			</where>
+		order by lastUpdateTime desc limit #{starNum},#{pageSize}
+	</select>
+
+	<!-- 根据商品套餐id获取套餐信息（包括套餐里的商品信息） -->
+	<select id="getGoodsPackById" resultMap="GoodsPackMap" parameterType="GoodsPack">
+		SELECT * FROM goods_pack g
+			JOIN goods_pack_affiliated a ON g.id = a.goodsPackId
+			JOIN goods_info i ON a.goodsInfoId = i.id
+			WHERE g.id = #{id}
+	</select>
+
+	<!-- 根据商品套餐id获取套餐里的商品信息 -->
+	<select id="getGoodsById" resultType="Goods" parameterType="GoodsPack">
+		SELECT * FROM goods_info WHERE id IN(
+			SELECT goodsInfoId FROM goods_pack_affiliated WHERE goodsPackId = (
+				SELECT id FROM goods_pack WHERE id = #{id}))
+	</select>
+
+	<!-- 获取套餐总数量 -->
+	<select id="count" resultType="int" parameterType="GoodsPack">
+		select count(1) from goods_pack
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test="goodsPackName != null">
+				and goodsPackName like CONCAT('%',#{goodsPackName},'%')
+			</if>
+			<if test="goodsPackCode != null">
+				and goodsPackCode = #{goodsPackCode}
+			</if>
+			<if test="typeId != null">
+				and typeId = #{typeId}
+			</if>
+			<if test="state != null">
+				and state = #{state}
+			</if>
+		</trim>
+	</select>
+
+	<!-- 获取套餐表中的最大id -->
+	<select id="getMaxId" resultType="int">
+		SELECT MAX(id) FROM goods_pack
+	</select>
+
+	<!-- 添加商品套餐 -->
+	<insert id="addGoodsPack" parameterType="GoodsPack">
+		insert into goods_pack (id,goodsPackCode,goodsPackName,typeId,typeName,totalPrice,state,note,num,createdBy,createTime,lastUpdateTime)
+						values (#{id},#{goodsPackCode},#{goodsPackName},#{typeId},#{typeName},#{totalPrice},#{state},#{note},#{num},#{createdBy},#{createTime},#{lastUpdateTime})
+	</insert>
+	<!-- 添加商品套餐关联表 -->
+	<insert id="addGoodsPackLian" parameterType="Goods">
+		insert into goods_pack_affiliated (goodsPackId,goodsInfoId,goodsNum)
+						values (#{goodsPackId},#{id},#{goodsNum})
+	</insert>
+
+	<!-- 修改商品套餐 -->
+	<update id="updateGoodsPack" parameterType="GoodsPack">
+		update goods_pack
+			<set>
+				<if test="goodsPackCode != null"> goodsPackCode = #{goodsPackCode},</if>
+				 <if test="goodsPackName != null"> goodsPackName = #{goodsPackName},</if>
+				 <if test="typeId != null"> typeId = #{typeId},</if>
+				 <if test="typeName != null"> typeName = #{typeName},</if>
+				 <if test="totalPrice != null"> totalPrice = #{totalPrice},</if>
+				 <if test="state != null"> state = #{state},</if>
+				 <if test="note != null"> note = #{note},</if>
+				 <if test="num != null"> num = #{num},</if>
+				 <if test="createdBy != null"> createdBy = #{createdBy},</if>
+				 <if test="createTime != null"> createTime = #{createTime},</if>
+				 <if test="lastUpdateTime != null"> lastUpdateTime = #{lastUpdateTime},</if>
+		     </set>
+			where id = #{id}
+	</update>
+
+	<!-- 删除套餐关联表信息 -->
+	<delete id="deleteGoodsLian" parameterType="GoodsPack">
+		delete from goods_pack_affiliated where goodsPackId=#{id}
+	</delete>
+
+	<!-- 删除商品套餐 -->
+	<delete id="deleteGoodsPack" parameterType="GoodsPack">
+		delete from goods_pack where id=#{id}
+	</delete>
+</mapper>

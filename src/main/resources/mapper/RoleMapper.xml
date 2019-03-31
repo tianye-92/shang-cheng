@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sl.dao.RoleMapper">
+
+	<!-- 注入role类 -->
+	<resultMap type="Role" id="roleMap">
+		<!-- 注入属性 -->
+		<result property="id" column="id"/>
+		<result property="roleName" column="roleName"/>
+	</resultMap>
+
+	<!-- 获取所有角色列表 -->
+	<select id="getRoleList" resultType="role">
+		select * from au_role;
+	</select>
+
+	<!-- 获取已启用的角色列表 -->
+	<select id="getRoleIsStart" resultType="Role">
+		select * from au_role where isStart=1
+	</select>
+
+	<!-- 根据角色编号和角色名称获取角色列表 -->
+	<select id="getRoleByCodeAndName" resultType="Role" parameterType="Role">
+		select * from au_role where roleCode = #{roleCode} or roleName = #{roleName}
+	</select>
+
+	<!-- 模糊查询角色信息 -->
+	<select id="getRole" resultType="Role" parameterType="Role">
+		select * from au_role
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test=" id != null">
+				and id = #{id}
+			</if>
+			<if test = "roleCode != null ">
+				and roleCode = #{roleCode}
+			</if>
+		</trim>
+	</select>
+
+	<!-- 添加角色 -->
+	<insert id="addRole" parameterType="Role" >
+		 insert into au_role (roleCode,roleName,createDate,createdBy,isStart) values (#{roleCode},#{roleName},#{createDate},#{createdBy},#{isStart})
+	</insert>
+
+	<!-- 模糊修改角色 -->
+	<update id ="updateRole" parameterType="Role">
+		update au_role
+			 <set>
+				 <if test="roleCode != null"> roleCode = #{roleCode},</if>
+				 <if test="roleName != null"> roleName = #{roleName},</if>
+				 <if test="createDate != null"> createDate = #{createDate},</if>
+				 <if test="createdBy != null"> createdBy = #{createdBy}, </if>
+				 <if test="isStart != null"> isStart = #{isStart}</if>
+		     </set>
+		  	where id = #{id}
+	</update>
+
+	<!-- 删除角色 -->
+	<delete id ="deleteRole" parameterType="Role">
+		delete from au_role where id = #{id}
+	</delete>
+
+</mapper>

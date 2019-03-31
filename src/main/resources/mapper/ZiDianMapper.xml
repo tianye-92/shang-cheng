@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sl.dao.ZiDianMapper">
+
+	<!-- 获取字典集合 -->
+	<select id="getZiDianList" resultType="ZiDian" parameterType="ZiDian">
+		select * from data_dictionary
+		<where>
+			<if test="typeCode != null">
+				and typeCode = #{typeCode}
+			</if>
+		</where>
+	</select>
+
+	<!-- 获取不重复的字典集合 -->
+	<select id="getOnlyZiDianList" resultType="ZiDian">
+		SELECT * FROM data_dictionary GROUP BY typeName ORDER BY id
+	</select>
+
+	<!-- 查询不包含注册会员的用户类型 -->
+	<select id="getUserTypeNoZhuCe" parameterType="ZiDian" resultType="ZiDian">
+		SELECT * FROM data_dictionary WHERE typeCode = #{typeCode} AND valueId NOT IN (1)
+	</select>
+
+	<!-- 判断是否是重复名称 -->
+	<select id="exis" resultType="int" parameterType="ZiDian">
+		SELECT COUNT(1) FROM  data_dictionary where typeCode = #{typeCode} or typeName = #{typeName}
+	</select>
+
+	<!-- 判断是否是重复名称 -->
+	<select id="exisByValueName" resultType="int" parameterType="ZiDian">
+		SELECT COUNT(1) FROM  data_dictionary where valueName = #{valueName}
+	</select>
+
+	<!-- 修改数据字典 -->
+	<update id="updateZiDian" parameterType="ZiDian">
+		update data_dictionary
+		<set>
+			<if test="typeCode != null"> typeCode = #{typeCode},</if>
+			<if test="typeName != null"> typeName = #{typeName},</if>
+			<if test="valueId != null"> valueId = #{valueId},</if>
+			<if test="valueName != null"> valueName = #{valueName}</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<!-- 修改数据字典类型 -->
+	<update id="updateZiDianType" parameterType="ZiDian">
+		update data_dictionary
+		<set>
+			<if test="typeCode != null"> typeCode = #{typeCode},</if>
+			<if test="typeName != null"> typeName = #{typeName},</if>
+			<if test="valueId != null"> valueId = #{valueId},</if>
+			<if test="valueName != null"> valueName = #{valueName}</if>
+		</set>
+		where typeCode = #{typeCode}
+	</update>
+
+	<!-- 添加数据字典信息 -->
+	<insert id="addZiDian" parameterType="ZiDian">
+		insert into data_dictionary(typeCode,typeName,valueId,valueName) values (#{typeCode},#{typeName},#{valueId}, #{valueName})
+	</insert>
+
+	<!-- 判断当前数据字典某个类型的valueId最大值 -->
+	<select id="getMaxValueId" resultType="int" parameterType="ZiDian">
+		select max(valueId) from data_dictionary where typeCode = #{typeCode}
+	</select>
+
+	<!-- 删除数据字典信息 -->
+	<delete id="deleteZiDian" parameterType="ZiDian">
+		delete from data_dictionary
+		<where>
+			<if test="typeCode != null">and typeCode = #{typeCode}</if>
+			<if test="typeName != null">and typeName = #{typeName}</if>
+			<if test="valueId != null">and valueId = #{valueId}</if>
+			<if test="valueName != null">and valueName = #{valueName}</if>
+		</where>
+	</delete>
+
+</mapper>

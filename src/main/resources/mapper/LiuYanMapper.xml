@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sl.dao.LiuYanMapper">
+
+	<!-- 获取留言集合 -->
+	<select id="getLiuYanList" resultType="LiuYan" parameterType="LiuYan">
+		select * from leave_message
+		<where>
+			<if test="createdBy != null"> and createdBy = #{createdBy}</if>
+		</where>
+		order by createTime desc limit #{starNum},#{pageSize}
+	</select>
+
+	<!-- 根据id获取留言信息 -->
+	<select id="getLiuYanById" resultType="LiuYan" parameterType="LiuYan">
+		select * from leave_message
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test="id != null">
+			 and id = #{id}
+			</if>
+		</trim>
+    </select>
+
+	<!-- 获取留言数量 -->
+	<select id="getCount" parameterType="LiuYan" resultType="int">
+		select count(1) from leave_message
+		<where>
+			<if test="createdBy != null"> and createdBy = #{createdBy}</if>
+		</where>
+	</select>
+
+	<!-- 添加留言 -->
+	<insert id="addLiuYan" parameterType="LiuYan">
+		insert into leave_message (messageCode,messageTitle,messageContent,state,createdBy,createTime) values (#{messageCode},#{messageTitle},#{messageContent},#{state},#{createdBy},#{createTime})
+	</insert>
+
+	<!-- 修改留言 -->
+	<update id="updateLiuYan" parameterType="LiuYan">
+		update leave_message
+			<set>
+				 <if test="messageCode != null"> messageCode = #{messageCode},</if>
+				 <if test="messageTitle != null"> messageTitle = #{messageTitle},</if>
+				 <if test="messageContent != null"> messageContent = #{messageContent},</if>
+				 <if test="state != null"> state = #{state},</if>
+				 <if test="createdBy != null"> createdBy = #{createdBy},</if>
+				 <if test="createTime != null"> createTime = #{createTime}</if>
+		     </set>
+	  	where id = #{id}
+	</update>
+
+	<!-- 删除留言 -->
+	<delete id="deleteLiuYan" parameterType="LiuYan">
+		delete from leave_message where id = #{id}
+	</delete>
+
+
+</mapper>

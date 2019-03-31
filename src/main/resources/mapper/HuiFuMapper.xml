@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sl.dao.HuiFuMapper">
+
+	<!-- 获取回复集合 -->
+	<select id="getHuiFuList" resultType="HuiFu" parameterType="HuiFu">
+		select * from reply
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test="id != null">
+			 and id = #{id}
+			</if>
+			<if test="messageId != null">
+			 and messageId = #{messageId}
+			</if>
+			<if test="createdBy != null">
+			 and createdBy = #{createdBy}
+			</if>
+			<if test="starNum != null and pageSize != null">
+			 order by createTime desc limit #{starNum},#{pageSize}
+			</if>
+		</trim>
+	</select>
+
+	<!-- 根据条件获取回复数量 -->
+	<select id="getCount" resultType="int" parameterType="HuiFu">
+		select count(id) from reply
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test="id != null">
+			 and id = #{id}
+			</if>
+			<if test="messageId != null">
+			 and messageId = #{messageId}
+			</if>
+			<if test="createdBy != null">
+			 and createdBy = #{createdBy}
+			</if>
+			<if test="starNum != null and pageSize != null">
+			 order by createTime desc limit #{starNum},#{pageSize}
+			</if>
+		</trim>
+	</select>
+
+	<!-- 删除回复 -->
+	<delete id="deleteHuiFu" parameterType="HuiFu">
+		delete from reply
+		<trim prefix="where" prefixOverrides="and | or">
+			<if test="id != null">
+			 and id = #{id}
+			</if>
+			<if test="messageId != null">
+			 and messageId = #{messageId}
+			</if>
+			<if test="createdBy != null">
+			 and createdBy = #{createdBy}
+			</if>
+		</trim>
+	</delete>
+
+	<!-- 添加回复 -->
+	<insert id="addHuiFu" parameterType="HuiFu">
+		insert into reply (messageId,replyContent,createdBy,createTime)
+						values (#{messageId},#{replyContent},#{createdBy},#{createTime})
+	</insert>
+
+</mapper>
